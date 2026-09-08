@@ -17,7 +17,6 @@ db.exec(`
 const botClient = new WebClient(process.env.SLACK_BOT_TOKEN);
 
 const app = new App({
-  token: process.env.SLACK_BOT_TOKEN,
   appToken: process.env.SLACK_APP_TOKEN,
   socketMode: true,
   clientId: process.env.SLACK_CLIENT_ID,
@@ -27,6 +26,11 @@ const app = new App({
   scopes: [],
   installerOptions: {
     userScopes: ["users.profile:write"]
+  },
+  authorize: async () => {
+    return {
+      botToken: process.env.SLACK_BOT_TOKEN
+    };
   },
   installationStore: {
     storeInstallation: async (installation) => {
@@ -100,4 +104,4 @@ app.command("/frogify", async ({ command, ack, respond, client }) => {
 (async () => {
   await app.start();
   console.log("bot is running!");
-})();s
+})();
