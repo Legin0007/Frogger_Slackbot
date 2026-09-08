@@ -27,11 +27,6 @@ const app = new App({
   installerOptions: {
     userScopes: ["users.profile:write"]
   },
-  authorize: async () => {
-    return {
-      botToken: process.env.SLACK_BOT_TOKEN
-    };
-  },
   installationStore: {
     storeInstallation: async (installation) => {
       const userId = installation.user.id;
@@ -68,8 +63,20 @@ const app = new App({
     },
     fetchInstallation: async (installQuery) => {
       const row = db.prepare(`SELECT token FROM user_tokens WHERE user_id = ?`).get(installQuery.userId);
-      if (!row) throw new Error("No installation found");
-      return { user: { token: row.token } };
+
+      return {
+        team: { id: installQuery.teamId },
+        enterprise: installQuery.enterpriseId ? { id: installQuery.enterpriseId } : undefined,
+        user: {
+          id: installQuery.userId,
+          token: row ? row.token : undefined
+        },
+        bot: {
+          token: process.env.SLACK_BOT_TOKEN,
+          id: undefined,
+          userId: undefined
+        }
+      };
     }
   }
 });
