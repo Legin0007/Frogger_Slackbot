@@ -26,7 +26,8 @@ const app = new App({
   redirectUri: "https://frogger.legin.hackclub.app/slack/oauth_redirect",
   scopes: [],
   installerOptions: {
-    userScopes: ["users.profile:write"]
+    userScopes: ["users.profile:write"],
+    redirectUriPath: "/slack/oauth_redirect"
   },
   installationStore: {
     storeInstallation: async (installation) => {
