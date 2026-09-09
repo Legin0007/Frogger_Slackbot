@@ -23,6 +23,7 @@ const app = new App({
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   stateSecret: process.env.SLACK_STATE_SECRET,
+  redirectUri: "https://frogger.legin.hackclub.app/slack/oauth_redirect",
   scopes: [],
   installerOptions: {
     userScopes: ["users.profile:write"]
