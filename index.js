@@ -27,7 +27,8 @@ const app = new App({
   scopes: [],
   installerOptions: {
     userScopes: ["users.profile:write"],
-    redirectUriPath: "/slack/oauth_redirect"
+    redirectUriPath: "/slack/oauth_redirect",
+    legacyStateVerification: true
   },
   installationStore: {
     storeInstallation: async (installation) => {
