@@ -92,7 +92,7 @@ app.command("/frogify", async ({ command, ack, respond, client }) => {
   const targetUserId = match[1];
   const requesterId = command.user_id;
 
-  const { url } = await app.receiver.installer.generateInstallUrl({
+  const url = await app.receiver.installer.generateInstallUrl({
     scopes: [],
     userScopes: ["users.profile:write"],
     metadata: JSON.stringify({ requesterId })
