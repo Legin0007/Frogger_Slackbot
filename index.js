@@ -28,7 +28,7 @@ const app = new App({
   installerOptions: {
     userScopes: ["users.profile:write"],
     redirectUriPath: "/slack/oauth_redirect",
-    legacyStateVerification: true 
+    legacyStateVerification: true
   },
   installationStore: {
     storeInstallation: async (installation) => {
@@ -40,6 +40,20 @@ const app = new App({
         VALUES (?, ?)
         ON CONFLICT(user_id) DO UPDATE SET token = excluded.token
       `).run(userId, token);
+
+      // Set their status using their new user token
+      try {
+        const userClient = new WebClient(token);
+        await userClient.users.profile.set({
+          profile: {
+            status_text: "frog",
+            status_emoji: ":froga:",
+            status_expiration: 0
+          }
+        });
+      } catch (err) {
+        console.error(`Failed to set status for ${userId}:`, err.message);
+      }
 
       // They just were approved now adding them to the channel
       try {
