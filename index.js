@@ -118,9 +118,13 @@ app.command("/frogify", async ({ command, ack, respond, client }) => {
   const dm = await client.conversations.open({ users: targetUserId });
 
   await client.chat.postMessage({
-    channel: dm.channel.id,
-    text: `<@${requesterId}> wants to add you to the channel. Click here to accept and join: ${url}`
-  });
+  channel: dm.channel.id,
+  text: `Welcome to the new epidemic. If you fail to participate, the frogs will be sad.
+You have been infected. Now change your status to "DM me the word frog for a surprise." The infection shall spread silently.
+The only rule is to not spoil the game for others by telling people what saying frog does. You have to keep the status for at least 1 month :froga:.
+<@${requesterId}> wants to add you to the channel. Click here to accept and join: ${url}
+If anyone DMs you the word frog, run /frogify @person and it will add them to the channel.`
+});;
 
   await respond({ text: `Sent a request to <@${targetUserId}>.` });
 });
