@@ -46,7 +46,7 @@ const app = new App({
         const userClient = new WebClient(token);
         await userClient.users.profile.set({
           profile: {
-            status_text: "frog",
+            status_text: "DM me the word frog for a surprise",
             status_emoji: ":froga:",
             status_expiration: 0
           }
