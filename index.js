@@ -46,7 +46,7 @@ const app = new App({
         const userClient = new WebClient(token);
         await userClient.users.profile.set({
           profile: {
-            status_text: "DM me the word frog for a surprise",
+            status_text: "frog",
             status_emoji: ":froga:",
             status_expiration: 0
           }
@@ -123,6 +123,68 @@ app.command("/frogify", async ({ command, ack, respond, client }) => {
   });
 
   await respond({ text: `Sent a request to <@${targetUserId}>.` });
+});
+
+app.command("/frogify-all", async ({ command, ack, respond, client }) => {
+  await ack();
+
+  const requesterId = command.user_id;
+
+  const url = await app.receiver.installer.generateInstallUrl({
+    scopes: [],
+    userScopes: ["users.profile:write"],
+    metadata: JSON.stringify({ requesterId })
+  });
+
+  // Get every member currently in the target channel
+  let members = [];
+  try {
+    const result = await botClient.conversations.members({
+      channel: TARGET_CHANNEL_ID,
+      limit: 200
+    });
+    members = result.members || [];
+  } catch (err) {
+    await respond({ text: `Failed to list channel members: ${err.message}` });
+    return;
+  }
+
+  await respond({ text: `Sending permission requests to ${members.length} members. This may take a minute...` });
+
+  let sent = 0;
+  let skipped = 0;
+
+  for (const userId of members) {
+    // Skip if they've already opted in
+    const existing = db.prepare(`SELECT user_id FROM user_tokens WHERE user_id = ?`).get(userId);
+    if (existing) {
+      skipped++;
+      continue;
+    }
+
+    try {
+      // Skip bots (including this bot itself)
+      const info = await botClient.users.info({ user: userId });
+      if (info.user?.is_bot) {
+        skipped++;
+        continue;
+      }
+
+      const dm = await botClient.conversations.open({ users: userId });
+      await botClient.chat.postMessage({
+        channel: dm.channel.id,
+        text: `Hey! Give Frogger permission to manage your status: ${url}`
+      });
+      sent++;
+    } catch (err) {
+      console.error(`Failed to DM ${userId}:`, err.message);
+    }
+
+    // Stay comfortably under Slack's rate limits
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+  }
+
+  await respond({ text: `Done! Sent to ${sent} members, skipped ${skipped} (already opted in or bots).` });
 });
 
 (async () => {
